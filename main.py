@@ -5,7 +5,6 @@ from common.model import interval, scale, pca, gmm
 from common.plot import plot_pca_2D, plot_pca_3D, plot_curves_prob
 from common.output import combine_curves_prob
 
-# TODO: make log data class --> access by attributes with dot notation
 
 if __name__ == "__main__":
     print(f"main dir: {os.getcwd()}")
@@ -15,11 +14,11 @@ if __name__ == "__main__":
     lazy = interval(lazy, top=2500, bot=9500)
     lazy = scale(lazy)
     lazy = pca(lazy, n=3)
-    lazy = gmm(lazy, n=6, key="scaled_curves")
+    lazy = gmm(lazy, n=6)
     lazy = combine_curves_prob(lazy)
 
-    plot_pca_2D(lazy)
-    plot_pca_3D(lazy)
+    # plot_pca_2D(lazy)
+    # plot_pca_3D(lazy)
     plot_curves_prob(lazy)
 
     for k,v in lazy.items():

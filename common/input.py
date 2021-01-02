@@ -28,14 +28,15 @@ def glob_data(data_dir, log_regex="/*.las"):
         print("dir not found")
 
 
-# TODO: add las object to dict 
 def load_log(log_path):
     log_las = ls.read(log_path, ignore_header_errors=True,  autodetect_encoding=True)
     log_output = dict()
+    log_output["las"] = log_las
     log_output["well_name"] = log_las.well["WELL"]["value"]
 
     try:
         log_output["base_curves"] = memnomics(log_las.df().reset_index()).dropna()
+        print("LOG LOADED")
 
     except (KeyError, Exception) as e:
         print(f"{log_path}: {e}")

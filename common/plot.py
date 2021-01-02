@@ -5,9 +5,9 @@ from plotly.subplots import make_subplots
 # TODO: convert matplotlib to plotly
 # TODO: update layout with method or property assignment
 # TODO: style plot with colors and marker sizes
-# TODO: plot cluster ellipses
 
 
+# TODO: convert to plotly
 def plot_bic_aic(n_components, bic, aic):
     plt.plot(n_components, bic, label="BIC")
     plt.plot(n_components, aic, label="AIC")
@@ -16,6 +16,7 @@ def plot_bic_aic(n_components, bic, aic):
     plt.show()
 
 
+# TODO: Assuming shared index, plot 2D PCA colored by hard cluster with marker size linked to SOFT cluster
 def plot_pca_2D(log_data, key="pca_curves"):
     data = log_data[key]
     labels = {"x":"component 1", "y":"component 2"}
@@ -25,6 +26,7 @@ def plot_pca_2D(log_data, key="pca_curves"):
     fig.show()
 
 
+# TODO: Assuming shared index, plot 2D PCA colored by hard cluster with marker size linked to SOFT cluster
 def plot_pca_3D(log_data, key="pca_curves"):
     data = log_data[key]
     labels = {"x":"component 1", "y":"component 2", "z":" component 3"}
@@ -34,6 +36,7 @@ def plot_pca_3D(log_data, key="pca_curves"):
     fig.show()
 
 
+# FIXME: figure out why this plot does not always load on webpage 
 def plot_curves_prob(log_data, key="merged_curves"):
     curves = log_data[key]
     cols = curves.columns.values.tolist()
@@ -44,7 +47,6 @@ def plot_curves_prob(log_data, key="merged_curves"):
     # FIXME: change heatmap x
     for i in range(len(cols)):
         col = cols[i]
-        print(i, col)
         if col != "SOFT_CLUSTERS" and col != "DEPT":
             trace = go.Scatter(x=curves[col], y=curves["DEPT"], mode="lines", name=col, line_color="black")
             fig.add_trace(trace, row=1, col=i+1)
@@ -59,6 +61,6 @@ def plot_curves_prob(log_data, key="merged_curves"):
     fig.show()
 
 
-# TODO: plot distribution with gaussian mixtures --> distplot
+# TODO: plot distribution of gaussian mixtures with some sort multi-historgram
 def plot_gmm_distro():
     pass
