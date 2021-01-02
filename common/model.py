@@ -46,10 +46,12 @@ def invert_pca():
 
 
 # TODO: implement SOFT and HARD clusters
+# TODO: modfify key to different curves (PCA, scaled, base, etc)
 def gmm(log_dict, n=5, key="scaled_curves", verbose=0):
     gmm = GaussianMixture(n_components=n, covariance_type="full", n_init=10, random_state=42)
     gmm.fit(log_dict[key])
-    log_dict["cluster_probs"] = gmm.predict_proba(log_dict[key])
+    log_dict["soft_clusters"] = gmm.predict_proba(log_dict[key])
+    log_dict["hard_clusters"] = gmm.predict(log_dict[key])
 
 
     if verbose == 0:

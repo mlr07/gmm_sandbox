@@ -43,7 +43,7 @@ def plot_curves_prob(log_data, key="merged_curves"):
 
     fig = make_subplots(rows=1, cols=len(cols))
 
-    # TODO: does this loop make sense?
+    # TODO: adjust curve name logic
     # FIXME: change heatmap x
     for i in range(len(cols)):
         col = cols[i]
