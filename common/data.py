@@ -1,0 +1,1 @@
+# TODO: define data model class to replace output_data dict --> access by attributes with dot notation
