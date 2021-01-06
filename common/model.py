@@ -23,9 +23,10 @@ def interval(log_dict, top, bot, key="base_curves"):
     return log_dict
 
 
-def pca(log_data, n=3, key="scaled_curves", verbose=0):
-    pca = PCA(n_components=n, random_state=42)
+def pca(log_data, key="scaled_curves", verbose=0):
+    pca = PCA(random_state=42)
     log_data["pca_curves"] = pca.fit_transform(log_data[key])
+    log_data["pca_expvar"] = pca.explained_variance_ratio_
 
     if verbose == 0:
         print("PCA COMPLETE")
@@ -35,19 +36,41 @@ def pca(log_data, n=3, key="scaled_curves", verbose=0):
         print(f"pca: {log_data['pca_curves'].shape}")
         print(f"features: {pca.n_features_}")
         print(f"samples: {pca.n_samples_}")
-        print(f"explained variance ratio: {pca.explained_variance_ratio_}")
+        print(f"explained variance ratio: {log_data['pca_expvar']}")
 
     return log_data
 
 
-# TODO: undo pca --> I don't think this is needed as long as index is preserved
-def invert_pca():
-    pass
+# TODO: review routine with dataframes, too many variables
+# TODO: verbose print out of features and pca rank
+def pca_rank(log_data):
+    X = log_data["scaled_curves"]
+    X_pca = log_data["pca_curves"]
+    index = log_data["base_curves"].columns.values.tolist()
+    expvar = log_data["pca_expvar"]
+
+    matrix = np.dot(X.T, X_pca)
+
+    df = pd.DataFrame(matrix)
+
+    df.columns = [''.join(['PC', f'{i+1}']) for i in range(matrix.shape[0])]
+    df.index = index
+
+    df_norm = (df.copy()-df.mean())/df.std()
+    df_norm = df_norm.sort_values(by=list(df_norm.columns), ascending=False)
+
+    df_abs = df_norm.copy().abs()
+    df_abs = df_abs.sort_values(by=list(df_abs.columns), ascending=False)
+
+    df_expvar = df_abs.copy()*expvar
+    df_expvar = df_expvar.sort_values(by=list(df_expvar.columns), ascending=False)
+
+    log_data["pca_rank"] = df_expvar
+
+    return log_data
 
 
-# TODO: implement SOFT and HARD clusters
-# TODO: modfify key to different curves (PCA, scaled, base, etc)
-def gmm(log_dict, n=5, key=None, verbose=0):
+def gmm(log_dict, n=5, key="scaled_curves", verbose=0):
     gmm = GaussianMixture(n_components=n, covariance_type="full", n_init=10, random_state=42)
     gmm.fit(log_dict[key])
     log_dict["soft_clusters"] = gmm.predict_proba(log_dict[key])

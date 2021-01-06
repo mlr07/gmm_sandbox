@@ -2,7 +2,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-# TODO: convert matplotlib to plotly
+
 # TODO: update layout with method or property assignment
 # TODO: style plot with colors and marker sizes
 
@@ -16,36 +16,46 @@ def plot_bic_aic(n_components, bic, aic):
     plt.show()
 
 
-# TODO: assuming shared index, plot 2D PCA colored by hard cluster with marker size linked to SOFT cluster
 # NOTE: need to pass dataframe, np array does not load smoothly
 def plot_pca_2D(log_data, key="merged_pca"):
     data = log_data[key]
     labels = {"x":"component 1", "y":"component 2"}
+    cluster_col = data.columns.values.tolist()[-1]
     title = f"{log_data['well_name']}: 2D PCA"
     # HACK: manual column names
-    fig = px.scatter(data, x=0, y=1, color=3, labels=labels, title=title)
+    fig = px.scatter(data, x=0, y=1, color=cluster_col, labels=labels, title=title)
     fig.show()
 
 
-# TODO: assuming shared index, plot 2D PCA colored by hard cluster with marker size linked to SOFT cluster
 def plot_pca_3D(log_data, key="merged_pca"):
     data = log_data[key]
+    cluster_col = data.columns.values.tolist()[-1]
     labels = {"x":"component 1", "y":"component 2", "z":" component 3"}
     title = f"{log_data['well_name']}: 3D PCA"
 
-    fig = px.scatter_3d(data, x=0, y=1, z=2, color=3, labels=labels, title=title, size_max=10, opacity=0.5)
+    fig = px.scatter_3d(data, x=0, y=1, z=2, color=cluster_col, labels=labels, title=title, size_max=10, opacity=0.5)
     fig.show()
 
 
-# FIXME: figure out why this plot does not always load on webpage 
+def plot_pca_rank(log_data, key="pca_rank"):
+    data = log_data[key]
+    well = log_data["well_name"]
+    
+    fig = px.imshow(data, color_continuous_scale='Blues')
+    fig.update_layout(title=f"{well}: PCA Feature Rank")
+    fig.update_xaxes(showticklabels=True)
+    fig.update_yaxes(showticklabels=True)
+    fig.show()
+
+
+# FIXME: fix cluster track and figure out why plot does not always load
 def plot_curves_prob(log_data, key="merged_curves"):
     curves = log_data[key]
     cols = curves.columns.values.tolist()
 
     fig = make_subplots(rows=1, cols=len(cols))
 
-    # TODO: adjust curve name logic
-    # FIXME: change heatmap x
+    # FIXME: change heatmap x and adjust curve name logic
     for i in range(len(cols)):
         col = cols[i]
         if col != "SOFT_CLUSTERS" and col != "HARD_CLUSTERS" and col != "DEPT":
