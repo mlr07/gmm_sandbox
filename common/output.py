@@ -18,7 +18,6 @@ def combine_curves_prob(log_data):
     log_data["merged_curves"] = curves.join([soft_df, hard_df])
 
     print("LOGS AND CLUSTERS MERGED")
-    # print(log_data["merged_curves"].info())
 
     return log_data 
 
@@ -33,7 +32,6 @@ def combine_pca_prob(log_data):
     merged_df = pd.DataFrame(merge) 
     log_data["merged_pca"] = merged_df
     print("PCA AND CLUSTERS MERGED")
-    print(merged_df.info())
 
     return log_data
 
@@ -45,4 +43,14 @@ def add_prob_las():
 
 # TODO: name clusters based on user input
 def name_clusters():
+    pass
+
+
+# TODO: implement func to export curves and clusters
+def output_las():
+    pass
+
+
+# TODO: implement func to export cluster tops
+def output_tops():
     pass

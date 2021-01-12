@@ -28,14 +28,15 @@ def glob_data(data_dir, log_regex="/*.las"):
         print("dir not found")
 
 
-def load_log(log_path):
+def load_log(log_path:str, cols:list):
     log_las = ls.read(log_path, ignore_header_errors=True,  autodetect_encoding=True)
     log_output = dict()
     log_output["las"] = log_las
     log_output["well_name"] = log_las.well["WELL"]["value"]
 
     try:
-        log_output["base_curves"] = memnomics(log_las.df().reset_index()).dropna()
+        log_output["base_curves"] = curves(log_las.df(), cols).dropna()
+        # log_output["base_curves"]["DEPT"] = log_output["base_curves"].index.values
         print("LOG LOADED")
 
     except (KeyError, Exception) as e:
@@ -45,8 +46,7 @@ def load_log(log_path):
     return log_output
 
 
-# TODO: process curve names and select standard logs if present
 # TODO: in app the user selects curves from a list
-def memnomics(log_df):
-    cols = ["DEPT", "SP", "GR", "RT90", "NPHI_COMP", "RHOB", "PE"]
+def curves(log_df, cols:list):
+    # TODO: logic to check for presence of curves
     return log_df[cols]
