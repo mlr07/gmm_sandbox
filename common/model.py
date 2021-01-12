@@ -9,7 +9,6 @@ from sklearn.mixture import GaussianMixture
 # TODO: consider passing data dict around differently
 # TODO: investigate min number of curves to cluster with
 # TODO: investigate curve variance
-# TODO: investigate clustering without depth
 
 
 def scale(log_dict, key="base_curves"):

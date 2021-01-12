@@ -44,3 +44,13 @@ def add_prob_las():
 # TODO: name clusters based on user input
 def name_clusters():
     pass
+
+
+# TODO: implement func to export curves and clusters
+def output_las():
+    pass
+
+
+# TODO: implement func to export cluster tops
+def output_tops():
+    pass

@@ -24,7 +24,6 @@ if __name__ == "__main__":
     lazy = combine_curves_prob(lazy)
     lazy = combine_pca_prob(lazy)
 
-    # FIXME: cluster colors
     plot_pca_2D(lazy)
     plot_pca_3D(lazy)
     plot_pca_rank(lazy)
