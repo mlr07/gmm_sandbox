@@ -9,16 +9,22 @@ from common.output import combine_curves_prob, combine_pca_prob
 if __name__ == "__main__":
     print(f"main dir: {os.getcwd()}")
 
-    # FIXME: handle log path with pathlib, ROOTDIR HOML example
-    lazy = load_log("./logs/Lazy_D_400222042.las")
-    lazy = interval(lazy, top=2500, bot=9500)
+    # TODO: put in pipeline
+    # FIXME: handle log path with pathlib
+    # NOTE: Nb top at 8650'MD, Psh on top, PCA returns 8682'MD
+
+    cols = ["SP", "GR", "RT90", "NPHI_COMP", "RHOB", "PE"]
+    data = "./logs/Lazy_D_400222042.las"
+    lazy = load_log(data, cols)
+    lazy = interval(lazy, top=8400, bot=8800)
     lazy = scale(lazy)
-    lazy = pca(lazy)
+    lazy = pca(lazy, verbose=1)
     lazy = pca_rank(lazy)
-    lazy = gmm(lazy, n=4)
+    lazy = gmm(lazy, n=2)
     lazy = combine_curves_prob(lazy)
     lazy = combine_pca_prob(lazy)
 
+    # FIXME: cluster colors
     plot_pca_2D(lazy)
     plot_pca_3D(lazy)
     plot_pca_rank(lazy)

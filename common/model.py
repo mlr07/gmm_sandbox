@@ -17,7 +17,6 @@ def scale(log_dict, key="base_curves"):
     return log_dict
 
 
-# FIXME: slice on "dept" column to get correct interval
 def interval(log_dict, top, bot, key="base_curves"):
     log_dict[key] = log_dict[key].loc[top:bot]
     return log_dict
