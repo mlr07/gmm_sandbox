@@ -65,43 +65,75 @@ def plot_pca_rank(log_data, key="pca_rank"):
     fig.show()
 
 
-# FIXME: add curve names, label legend, link zoom/hover, and colorize hard_clusters
+# TODO: fix legend, hovertext probs/clusters, fix hard clusters, adjust background/grid
 def plot_curves_prob(log_data, key="merged_curves"):
     curves = log_data[key]
     depth = curves.index.values
     cols = curves.columns.values.tolist()
+    well = log_data["well_name"]
 
-    fig = make_subplots(rows=1, cols=len(cols))
+    fig = make_subplots(rows=1, 
+                        cols=len(cols), 
+                        shared_yaxes=True, 
+                        subplot_titles=cols,
+                        horizontal_spacing=0.01
+    )
 
     for i in range(len(cols)):
         col = cols[i]
+        text = col
 
         if col != "soft_clusters" and col != "hard_clusters":
             trace = go.Scatter(x=curves[col], 
                                y=depth, 
                                mode="lines", 
                                name=col, 
-                               line_color="black"
+                               line_color="black",
+                               line_width=2,
+                               hovertemplate="MD: %{y}"+"<br>"+f"{col}"+": %{x:.2f}"+"<extra></extra>"
             )
             fig.add_trace(trace, row=1, col=i+1)
+            fig.update_xaxes(tickangle=-60, row=1, col=i+1)
         
-        # FIXME: curve is offset, check index of dataframe prior to merge
+        # TODO: fix hovertemplate
         elif col == "soft_clusters":
-            trace = go.Heatmap(y=depth, 
+            trace = go.Heatmap(y=depth,
+                               z=curves[col],
+                               showscale=False,
+                               hovertemplate="MD: %{y}<br>CLST: %{x}<br>PROB: %{z:.4f}"+"<extra></extra>",
+            )
+            fig.add_trace(trace, row=1, col=i+1)
+            fig.update_xaxes(showticklabels=False,
+                             row=1, 
+                             col=i+1)
+
+        # TODO: fix heatmap by reducing range
+        elif col == "hard_clusters":
+            trace = go.Heatmap(y=depth,
                                z=curves[col]
             )
-            fig.add_trace(trace,row=1, col=i+1)
-
-        elif col == "hard_clusters":
-            trace = go.Scatter(x=curves[col], 
-                               y=depth, 
-                               mode="lines", 
-                               name=col, 
-                               line_color="black"
-            )
             fig.add_trace(trace, row=1, col=i+1)
-            
-    fig.update_yaxes(autorange="reversed") 
+
+
+
+    fig.update_traces(yaxis="y1",
+                      showlegend=False
+    )
+
+    fig.update_yaxes(autorange="reversed", 
+                     showspikes=True, 
+                     spikemode="across+toaxis",
+                     spikesnap="cursor",
+                     spikedash="solid",
+                     spikethickness=1,
+                     spikecolor="firebrick"
+    )
+
+    fig.update_layout(title=f"{well}: Curves and Clusters",
+                      spikedistance=500,
+                      hoverdistance=5
+    )
+
     fig.show()
 
 
