@@ -11,16 +11,16 @@ if __name__ == "__main__":
 
     # TODO: put in pipeline
     # FIXME: handle log path with pathlib
-    # NOTE: Nb top at 8650'MD, Psh on top, PCA returns 8682'MD
+    # NOTE: Nb top at 8650'MD, Psh on top, PCA returns 8680'MD-8682'MD
 
-    cols = ["SP", "GR", "RT90", "NPHI_COMP", "RHOB", "PE"]
+    cols = ["GR", "RT90", "NPHI_COMP", "RHOB"]
     data = "./logs/Lazy_D_400222042.las"
     lazy = load_log(data, cols)
-    lazy = interval(lazy, top=8400, bot=8800)
+    lazy = interval(lazy, top=8500, bot=8800)
     lazy = scale(lazy)
     lazy = pca(lazy, verbose=1)
     lazy = pca_rank(lazy)
-    lazy = gmm(lazy, n=2)
+    lazy = gmm(lazy, n=5)
     lazy = combine_curves_prob(lazy)
     lazy = combine_pca_prob(lazy)
 

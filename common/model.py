@@ -18,6 +18,8 @@ def scale(log_dict, key="base_curves"):
 
 def interval(log_dict, top, bot, key="base_curves"):
     log_dict[key] = log_dict[key].loc[top:bot]
+    log_dict["interval_top"] = top
+    log_dict["interval_bot"] = bot
     return log_dict
 
 
@@ -71,9 +73,10 @@ def pca_rank(log_data):
 def gmm(log_dict, n=5, key="scaled_curves", verbose=0):
     gmm = GaussianMixture(n_components=n, covariance_type="full", n_init=10, random_state=42)
     gmm.fit(log_dict[key])
+
     log_dict["soft_clusters"] = gmm.predict_proba(log_dict[key])
     log_dict["hard_clusters"] = gmm.predict(log_dict[key])
-
+    log_dict["cluster_n"] = n
 
     if verbose == 0:
         print("GMM COMPLETE")

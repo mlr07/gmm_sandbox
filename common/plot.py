@@ -4,9 +4,10 @@ from plotly.subplots import make_subplots
 
 import numpy as np
 
-
-# TODO: update layout with method or property assignment
-# TODO: style plot with colors and marker sizes
+# TODO: add interval and cluster param to title
+# TODO: subplot pca and rank
+# TODO: think about gmm mixture density plot
+# TODO: adjust background grid
 
 
 # TODO: convert to plotly
@@ -18,18 +19,18 @@ def plot_bic_aic(n_components, bic, aic):
     plt.show()
 
 
-# TODO: link to depth in merged dataframe
+# TODO: link to depth in merged dataframe, fix legend, plot parameters in title
 def plot_pca_2D(log_data, key="merged_pca"):
     data = log_data[key]
     labels = {"x":"component 1", "y":"component 2"}
     cluster_col = data.columns.values.tolist()[-1]
+    data[cluster_col] = data[cluster_col].astype(str)
     title = f"{log_data['well_name']}: 2D PCA"
-    # HACK: manual column names
+
     fig = px.scatter(data, 
                      x=0, 
                      y=1, 
-                     color=cluster_col, 
-                     color_continuous_scale="Turbo", 
+                     color=cluster_col,
                      labels=labels, 
                      title=title
     )
@@ -39,6 +40,7 @@ def plot_pca_2D(log_data, key="merged_pca"):
 def plot_pca_3D(log_data, key="merged_pca"):
     data = log_data[key]
     cluster_col = data.columns.values.tolist()[-1]
+    data[cluster_col] = data[cluster_col].astype(str)
     labels = {"x":"component 1", "y":"component 2", "z":" component 3"}
     title = f"{log_data['well_name']}: 3D PCA"
 
@@ -47,7 +49,6 @@ def plot_pca_3D(log_data, key="merged_pca"):
                         y=1, 
                         z=2, 
                         color=cluster_col, 
-                        color_continuous_scale="Turbo", 
                         labels=labels, 
                         title=title, 
                         size_max=10, 
@@ -67,12 +68,15 @@ def plot_pca_rank(log_data, key="pca_rank"):
     fig.show()
 
 
-# TODO: fix legend, hovertext probs/clusters, fix hard clusters, adjust background/grid
 def plot_curves_prob(log_data, key="merged_curves"):
     curves = log_data[key]
     depth = curves.index.values
     cols = curves.columns.values.tolist()
     well = log_data["well_name"]
+    n = log_data["cluster_n"]
+    top = log_data["interval_top"]
+    bot = log_data["interval_bot"]
+    interval = abs(top-bot)
 
     fig = make_subplots(rows=1, 
                         cols=len(cols), 
@@ -83,7 +87,6 @@ def plot_curves_prob(log_data, key="merged_curves"):
 
     for i in range(len(cols)):
         col = cols[i]
-        text = col
 
         if col != "soft_clusters" and col != "hard_clusters":
             trace = go.Scatter(x=curves[col], 
@@ -92,43 +95,61 @@ def plot_curves_prob(log_data, key="merged_curves"):
                                name=col, 
                                line_color="black",
                                line_width=2,
-                               hovertemplate="MD: %{y}"+"<br>"+f"{col}"+": %{x:.2f}"+"<extra></extra>"
+                               hovertemplate="MD: %{y}<br>"+f"{col}"+": %{x:.2f}<extra></extra>"
             )
-            fig.add_trace(trace, row=1, col=i+1)
-            fig.update_xaxes(tickangle=-60, row=1, col=i+1)
+            fig.add_trace(trace, 
+                          row=1, 
+                          col=i+1
+            )
+            fig.update_xaxes(tickangle=60, 
+                             row=1, 
+                             col=i+1
+            )
         
-        # TODO: fix hovertemplate
         elif col == "soft_clusters":
             trace = go.Heatmap(y=depth,
                                z=curves[col],
                                showscale=False,
                                hovertemplate="MD: %{y}<br>CLST: %{x}<br>PROB: %{z:.4f}"+"<extra></extra>",
             )
-            fig.add_trace(trace, row=1, col=i+1)
+            fig.add_trace(trace, 
+                          row=1, 
+                          col=i+1
+            )
             fig.update_xaxes(showticklabels=False,
                              row=1, 
-                             col=i+1)
+                             col=i+1
+            )
 
         elif col == "hard_clusters":
-            # convert df column to 1D vertical array for heatmap
-            data_1D_array = np.array(curves[col]).reshape(-1,1).astype(str)
+            # convert df column to 1D vertical array
+            data_1D_array = np.array(curves[col]).reshape(-1,1)
+            # get unique clusters k
+            unique_clusters = np.unique(data_1D_array)
+            # grab a sequence of 10 colors
+            g10 = px.colors.qualitative.G10
+            # get colors for custer k
+            colors = [g10[c] for c in unique_clusters]
 
             trace = go.Heatmap(y=depth,
                                z=data_1D_array,
-                               showscale=Fal
+                               showscale=False,
+                               colorscale=colors,
                                hovertemplate="MD: %{y}<br>CLST: %{z}<extra></extra>"
             )
-            fig.add_trace(trace, row=1, col=i+1)
+            fig.add_trace(trace, 
+                          row=1, 
+                          col=i+1
+            )
             fig.update_xaxes(showticklabels=False,
                              row=1, 
-                             col=i+1)
-
+                             col=i+1
+            )
 
     # HACK for linked spikelines
     fig.update_traces(yaxis="y1",
                       showlegend=False
     )
-
     fig.update_yaxes(autorange="reversed", 
                      showspikes=True, 
                      spikemode="across+toaxis",
@@ -137,12 +158,10 @@ def plot_curves_prob(log_data, key="merged_curves"):
                      spikethickness=1,
                      spikecolor="firebrick"
     )
-
-    fig.update_layout(title=f"{well}: Curves and Clusters",
+    fig.update_layout(title=f"{well}: {n} cluster GMM from {top}-{bot}MD' ({interval}' interval)",
                       spikedistance=500,
                       hoverdistance=5
     )
-
     fig.show()
 
 
