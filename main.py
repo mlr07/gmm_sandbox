@@ -20,7 +20,7 @@ if __name__ == "__main__":
     lazy = scale(lazy)
     lazy = pca(lazy, verbose=1)
     lazy = pca_rank(lazy)
-    lazy = gmm(lazy, n=5)
+    lazy = gmm(lazy, n=2)
     lazy = combine_curves_prob(lazy)
     lazy = combine_pca_prob(lazy)
 

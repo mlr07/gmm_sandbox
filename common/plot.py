@@ -2,6 +2,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+import numpy as np
+
 
 # TODO: update layout with method or property assignment
 # TODO: style plot with colors and marker sizes
@@ -107,15 +109,22 @@ def plot_curves_prob(log_data, key="merged_curves"):
                              row=1, 
                              col=i+1)
 
-        # TODO: fix heatmap by reducing range
         elif col == "hard_clusters":
+            # convert df column to 1D vertical array for heatmap
+            data_1D_array = np.array(curves[col]).reshape(-1,1).astype(str)
+
             trace = go.Heatmap(y=depth,
-                               z=curves[col]
+                               z=data_1D_array,
+                               showscale=Fal
+                               hovertemplate="MD: %{y}<br>CLST: %{z}<extra></extra>"
             )
             fig.add_trace(trace, row=1, col=i+1)
+            fig.update_xaxes(showticklabels=False,
+                             row=1, 
+                             col=i+1)
 
 
-
+    # HACK for linked spikelines
     fig.update_traces(yaxis="y1",
                       showlegend=False
     )
