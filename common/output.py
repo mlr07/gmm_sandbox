@@ -23,13 +23,21 @@ def combine_curves_prob(log_data):
 
 
 def combine_pca_prob(log_data):
+    # get data
     pca = log_data["pca_curves"]
-    # soft = log_data["soft_clusters"]
     hard = log_data["hard_clusters"].reshape((-1,1))
+    depth = log_data["base_curves"].index.values.reshape((-1,1))
     
-    merge = np.hstack((pca, hard))
-    cols = ["comp1, comp2, comp3, hard_cluster"]
-    merged_df = pd.DataFrame(merge) 
+    # merge arrays into df
+    merge = np.hstack((pca, hard, depth))
+    merged_df = pd.DataFrame(merge)
+    
+    # set column names
+    pca_cols = merged_df.columns.values.tolist()[:-2]
+    pca_cols = [f"PC_{p}" for p in pca_cols]
+    other_cols = ["hard_cluster", "dept"]
+    merged_df.columns = pca_cols + other_cols
+
     log_data["merged_pca"] = merged_df
     print("PCA AND CLUSTERS MERGED")
 
@@ -54,3 +62,15 @@ def output_las():
 # TODO: implement func to export cluster tops
 def output_tops():
     pass
+
+
+    # pca = pd.DataFrame(log_data["pca_curves"])
+    # pca.columns = [f"PCA_{i}" for i in df_pca.columns.values.tolist()]
+    # # get hard clusters
+    # hard = pd.DataFrame(log_data["hard_clusters"].reshape((-1,1)), columns="hard_clusters")
+    # # get depth 
+    # depth = pd.DataFrame(log_data["base_curves"].index.values.reshape((-1,1)), columns="depth")
+    # # merge dataframes on vertical axis
+    # merged_df = pd.DataFrame() 
+    # log_data["merged_pca"] = merged_df
+    # print("PCA AND CLUSTERS MERGED")

@@ -4,10 +4,23 @@ from plotly.subplots import make_subplots
 
 import numpy as np
 
-# TODO: add interval and cluster param to title
 # TODO: subplot pca and rank
 # TODO: think about gmm mixture density plot
-# TODO: adjust background grid
+
+# TODO:
+# PCA 2D/3D --> convert from px to go
+    # G10 colors for clusters
+    # Add depth to pca frame
+    # Set hover template
+    # Cluster and depth
+    # Axis label component and variance %
+    # Legend title 
+    # Title well, pca, and total variance
+    # Config tools
+
+# Explained variance --> Plotly PCA exampls
+
+# Make PCA subplot --> 2D/3D PCA, feature rank, and cumvar
 
 
 # TODO: convert to plotly
@@ -21,20 +34,23 @@ def plot_bic_aic(n_components, bic, aic):
 
 # TODO: link to depth in merged dataframe, fix legend, plot parameters in title
 def plot_pca_2D(log_data, key="merged_pca"):
+    # prepare data
     data = log_data[key]
-    labels = {"x":"component 1", "y":"component 2"}
-    cluster_col = data.columns.values.tolist()[-1]
-    data[cluster_col] = data[cluster_col].astype(str)
-    title = f"{log_data['well_name']}: 2D PCA"
 
-    fig = px.scatter(data, 
-                     x=0, 
-                     y=1, 
-                     color=cluster_col,
-                     labels=labels, 
-                     title=title
+    fig = go.Figure()
+
+    trace = go.Scatter(x=data["PC_0"],
+                       y=data["PC_1"],
+                       mode="markers",
+                       marker_color=data["hard_cluster"]
+
+
     )
+
+    fig.add_trace(trace)
+
     fig.show()
+                    
 
 # TODO: link to depth in merged dataframe
 def plot_pca_3D(log_data, key="merged_pca"):
@@ -168,3 +184,29 @@ def plot_curves_prob(log_data, key="merged_curves"):
 # TODO: plot distribution of gaussian mixtures with some sort multi-historgram
 def plot_gmm_distro():
     pass
+
+
+# TODO: quick look at distribution of data in log
+def summary_stats():
+    # histograms plotted on them selves and colored by curve
+    # mean and variance
+    # scatter plot matrix (splom) --> maybe not
+    pass
+
+
+    # labels = {"x":"component 1", "y":"component 2"}
+    # cluster_col = data.columns.values.tolist()[-1]
+    # data[cluster_col] = data[cluster_col].astype(str)
+    # title = f"{log_data['well_name']}: 2D PCA"
+
+    # #  make the trace
+    # fig = px.scatter(data, 
+    #                  x=0, 
+    #                  y=1, 
+    #                  color=cluster_col,
+    #                  labels=labels, 
+    #                  title=title
+    # )
+    
+    # # show or return...
+    # fig.show()
