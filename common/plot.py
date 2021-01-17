@@ -10,9 +10,7 @@ import numpy as np
 # TODO:
 # PCA 2D/3D --> convert from px to go
     # G10 colors for clusters
-    # Add depth to pca frame
     # Set hover template
-    # Cluster and depth
     # Axis label component and variance %
     # Legend title 
     # Title well, pca, and total variance
@@ -36,18 +34,32 @@ def plot_bic_aic(n_components, bic, aic):
 def plot_pca_2D(log_data, key="merged_pca"):
     # prepare data
     data = log_data[key]
+    unique_clusters = data["hard_cluster"].unique()
+    pca_var = log_data["pca_expvar"][0:2]*100
+    pca_var_sum = pca_var.sum()
+
+    well = log_data["well_name"]
+    n = log_data["cluster_n"]
+    top = log_data["interval_top"]
+    bot = log_data["interval_bot"]
+    interval = abs(top-bot)
+    title = f"{well}: 2D PCA (total variance = {pca_var_sum:.0f}%), {n} cluster GMM, {top}-{bot}'MD"
 
     fig = go.Figure()
 
-    trace = go.Scatter(x=data["PC_0"],
-                       y=data["PC_1"],
-                       mode="markers",
-                       marker_color=data["hard_cluster"]
+    for u in unique_clusters:
+        mask = data["hard_cluster"] == u
+        mask_data = data[mask]
 
+        trace = go.Scatter(x=mask_data["PC_0"],
+                           y=mask_data["PC_1"],
+                           mode="markers"
+        )
+        fig.add_trace(trace)
 
-    )
-
-    fig.add_trace(trace)
+    fig.update_xaxes(title=f"PC_0 variance = {pca_var[0]:.0f}%")
+    fig.update_yaxes(title=f"PC_1 variance = {pca_var[1]:.0f}%")
+    fig.update_layout(title=title)
 
     fig.show()
                     
