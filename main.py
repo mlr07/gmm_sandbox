@@ -22,14 +22,14 @@ if __name__ == "__main__":
     lazy = scale(lazy)
     lazy = pca(lazy, verbose=1)
     lazy = pca_rank(lazy)
-    lazy = gmm(lazy, n=4)
+    lazy = gmm(lazy, n=5)
     lazy = combine_curves_prob(lazy)
     lazy = combine_pca_prob(lazy)
 
     plot_pca_2D(lazy)
-    # plot_pca_3D(lazy)
+    plot_pca_3D(lazy)
     # plot_pca_rank(lazy)
-    # plot_curves_prob(lazy)
+    plot_curves_prob(lazy)
 
     print(lazy["merged_curves"].info())
 

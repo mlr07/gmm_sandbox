@@ -9,11 +9,6 @@ import numpy as np
 
 # TODO:
 # PCA 2D/3D --> convert from px to go
-    # G10 colors for clusters
-    # Set hover template
-    # Axis label component and variance %
-    # Legend title 
-    # Title well, pca, and total variance
     # Config tools
 
 # Explained variance --> Plotly PCA exampls
@@ -30,61 +25,98 @@ def plot_bic_aic(n_components, bic, aic):
     plt.show()
 
 
-# TODO: link to depth in merged dataframe, fix legend, plot parameters in title
 def plot_pca_2D(log_data, key="merged_pca"):
     # prepare data
     data = log_data[key]
-    unique_clusters = data["hard_cluster"].unique()
+    unique_clusters = np.sort(data["hard_cluster"].unique().astype(int))
     pca_var = log_data["pca_expvar"][0:2]*100
     pca_var_sum = pca_var.sum()
-
+    
+    # get some colors
+    g10 = px.colors.qualitative.G10       
+    
+    # build a title
     well = log_data["well_name"]
     n = log_data["cluster_n"]
     top = log_data["interval_top"]
     bot = log_data["interval_bot"]
-    interval = abs(top-bot)
-    title = f"{well}: 2D PCA (total variance = {pca_var_sum:.0f}%), {n} cluster GMM, {top}-{bot}'MD"
+    title = f"{well}: Total 2D PCA Variance = {pca_var_sum:.0f}%, {n} Cluster GMM, {top}-{bot}'MD"
 
+    # make the fig
     fig = go.Figure()
-
-    for u in unique_clusters:
-        mask = data["hard_cluster"] == u
+    
+    # make trace for each cluster  
+    for cluster in unique_clusters:
+        mask = data["hard_cluster"] == cluster
         mask_data = data[mask]
-
+        mask_dept = mask_data["dept"].astype(str).tolist()
         trace = go.Scatter(x=mask_data["PC_0"],
                            y=mask_data["PC_1"],
-                           mode="markers"
+                           mode="markers",
+                           name=f"Cluster {cluster}",
+                           marker_color=g10[cluster],
+                           hovertemplate="MD: %{text}<extra></extra>",
+                           text=mask_dept
         )
         fig.add_trace(trace)
 
-    fig.update_xaxes(title=f"PC_0 variance = {pca_var[0]:.0f}%")
-    fig.update_yaxes(title=f"PC_1 variance = {pca_var[1]:.0f}%")
-    fig.update_layout(title=title)
+    fig.update_layout(title=title,
+                      xaxis_title=f"PC_0 variance = {pca_var[0]:.0f}%",
+                      yaxis_title=f"PC_1 variance = {pca_var[1]:.0f}%",
+                      legend_title="GMM Cluster"
+    )
 
     fig.show()
                     
 
-# TODO: link to depth in merged dataframe
+# TODO: set axis labels and adjust marker colors
 def plot_pca_3D(log_data, key="merged_pca"):
+    # prepare data
     data = log_data[key]
-    cluster_col = data.columns.values.tolist()[-1]
-    data[cluster_col] = data[cluster_col].astype(str)
-    labels = {"x":"component 1", "y":"component 2", "z":" component 3"}
-    title = f"{log_data['well_name']}: 3D PCA"
+    unique_clusters = np.sort(data["hard_cluster"].unique().astype(int))
+    pca_var = log_data["pca_expvar"][0:3]*100
+    pca_var_sum = pca_var.sum()
+    
+    # get some colors
+    g10 = px.colors.qualitative.G10       
+    
+    # build a title
+    well = log_data["well_name"]
+    n = log_data["cluster_n"]
+    top = log_data["interval_top"]
+    bot = log_data["interval_bot"]
+    title = f"{well}: Total 3D PCA Variance = {pca_var_sum:.0f}%, {n} Cluster GMM, {top}-{bot}'MD"
 
-    fig = px.scatter_3d(data, 
-                        x=0, 
-                        y=1, 
-                        z=2, 
-                        color=cluster_col, 
-                        labels=labels, 
-                        title=title, 
-                        size_max=10, 
-                        opacity=0.5
+    # make figure
+    fig = go.Figure()
+
+    # make trace for each cluster  
+    for cluster in unique_clusters:
+        mask = data["hard_cluster"] == cluster
+        mask_data = data[mask]
+        mask_dept = mask_data["dept"].astype(str).tolist()
+        trace = go.Scatter3d(x=mask_data["PC_0"],
+                             y=mask_data["PC_1"],
+                             z=mask_data["PC_2"],
+                             mode="markers",
+                             name=f"Cluster {cluster}",
+                             marker_color=g10[cluster],
+                             hovertemplate="MD: %{text}<extra></extra>",
+                             text=mask_dept
+        )
+        fig.add_trace(trace)
+
+    fig.update_layout(title=title,
+                xaxis_title=f"PC_0 variance = {pca_var[0]:.0f}%",
+                yaxis_title=f"PC_1 variance = {pca_var[1]:.0f}%",
+                legend_title="GMM Cluster"
     )
+
     fig.show()
 
 
+
+# convert to go
 def plot_pca_rank(log_data, key="pca_rank"):
     data = log_data[key]
     well = log_data["well_name"]
@@ -97,15 +129,19 @@ def plot_pca_rank(log_data, key="pca_rank"):
 
 
 def plot_curves_prob(log_data, key="merged_curves"):
+    # prepare data
     curves = log_data[key]
     depth = curves.index.values
     cols = curves.columns.values.tolist()
+    
+    # make title
     well = log_data["well_name"]
     n = log_data["cluster_n"]
     top = log_data["interval_top"]
     bot = log_data["interval_bot"]
     interval = abs(top-bot)
 
+    # make the fig
     fig = make_subplots(rows=1, 
                         cols=len(cols), 
                         shared_yaxes=True, 
@@ -113,6 +149,7 @@ def plot_curves_prob(log_data, key="merged_curves"):
                         horizontal_spacing=0.01
     )
 
+    # make trace for each curve 
     for i in range(len(cols)):
         col = cols[i]
 
@@ -138,7 +175,7 @@ def plot_curves_prob(log_data, key="merged_curves"):
             trace = go.Heatmap(y=depth,
                                z=curves[col],
                                showscale=False,
-                               hovertemplate="MD: %{y}<br>CLST: %{x}<br>PROB: %{z:.4f}"+"<extra></extra>",
+                               hovertemplate="MD: %{y}<br>CLST: %{x}<br>PROB: %{z:.2f}"+"<extra></extra>",
             )
             fig.add_trace(trace, 
                           row=1, 
@@ -153,7 +190,7 @@ def plot_curves_prob(log_data, key="merged_curves"):
             # convert df column to 1D vertical array
             data_1D_array = np.array(curves[col]).reshape(-1,1)
             # get unique clusters k
-            unique_clusters = np.unique(data_1D_array)
+            unique_clusters = np.sort(np.unique(data_1D_array))
             # grab a sequence of 10 colors
             g10 = px.colors.qualitative.G10
             # get colors for custer k
@@ -178,6 +215,7 @@ def plot_curves_prob(log_data, key="merged_curves"):
     fig.update_traces(yaxis="y1",
                       showlegend=False
     )
+    # set up yaxis and howvertool
     fig.update_yaxes(autorange="reversed", 
                      showspikes=True, 
                      spikemode="across+toaxis",
@@ -198,27 +236,20 @@ def plot_gmm_distro():
     pass
 
 
-# TODO: quick look at distribution of data in log
-def summary_stats():
-    # histograms plotted on them selves and colored by curve
-    # mean and variance
-    # scatter plot matrix (splom) --> maybe not
-    pass
-
-
-    # labels = {"x":"component 1", "y":"component 2"}
+    # data = log_data[key]
     # cluster_col = data.columns.values.tolist()[-1]
     # data[cluster_col] = data[cluster_col].astype(str)
-    # title = f"{log_data['well_name']}: 2D PCA"
+    # labels = {"x":"component 1", "y":"component 2", "z":" component 3"}
+    # title = f"{log_data['well_name']}: 3D PCA"
 
-    # #  make the trace
-    # fig = px.scatter(data, 
-    #                  x=0, 
-    #                  y=1, 
-    #                  color=cluster_col,
-    #                  labels=labels, 
-    #                  title=title
+    # fig = px.scatter_3d(data, 
+    #                     x=0, 
+    #                     y=1, 
+    #                     z=2, 
+    #                     color=cluster_col, 
+    #                     labels=labels, 
+    #                     title=title, 
+    #                     size_max=10, 
+    #                     opacity=0.5
     # )
-    
-    # # show or return...
     # fig.show()
