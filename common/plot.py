@@ -25,6 +25,10 @@ def plot_bic_aic(n_components, bic, aic):
     plt.show()
 
 
+# def pca_grid(log_data, key="merged_pca"):
+    
+
+
 def plot_pca_2D(log_data, key="merged_pca"):
     # prepare data
     data = log_data[key]
@@ -115,17 +119,31 @@ def plot_pca_3D(log_data, key="merged_pca"):
     fig.show()
 
 
-
-# convert to go
+# TODO: convert to go
 def plot_pca_rank(log_data, key="pca_rank"):
     data = log_data[key]
-    well = log_data["well_name"]
-    
-    fig = px.imshow(data, color_continuous_scale='Blues')
+    well = log_data["well_name"]  
+
+    fig  = go.Figure()
+
+    # hovertemplate
+    trace = go.Heatmap(x=data.columns.values.tolist(),
+                       y=data.index.values.tolist(),
+                       z=data,
+                       colorscale="Blues"
+    )
+
     fig.update_layout(title=f"{well}: PCA Feature Rank")
-    fig.update_xaxes(showticklabels=True)
-    fig.update_yaxes(showticklabels=True)
+    # update y axis --> reverse
+    # update x axus --> PCA amount for each PC.  
+    fig.add_trace(trace)
     fig.show()
+    
+    # fig = px.imshow(data, color_continuous_scale='Blues')
+    # fig.update_layout(title=f"{well}: PCA Feature Rank")
+    # fig.update_xaxes(showticklabels=True)
+    # fig.update_yaxes(showticklabels=True)
+    # fig.show()
 
 
 def plot_curves_prob(log_data, key="merged_curves"):
@@ -234,22 +252,3 @@ def plot_curves_prob(log_data, key="merged_curves"):
 # TODO: plot distribution of gaussian mixtures with some sort multi-historgram
 def plot_gmm_distro():
     pass
-
-
-    # data = log_data[key]
-    # cluster_col = data.columns.values.tolist()[-1]
-    # data[cluster_col] = data[cluster_col].astype(str)
-    # labels = {"x":"component 1", "y":"component 2", "z":" component 3"}
-    # title = f"{log_data['well_name']}: 3D PCA"
-
-    # fig = px.scatter_3d(data, 
-    #                     x=0, 
-    #                     y=1, 
-    #                     z=2, 
-    #                     color=cluster_col, 
-    #                     labels=labels, 
-    #                     title=title, 
-    #                     size_max=10, 
-    #                     opacity=0.5
-    # )
-    # fig.show()
