@@ -4,16 +4,8 @@ from plotly.subplots import make_subplots
 
 import numpy as np
 
-# TODO: subplot pca and rank
-# TODO: think about gmm mixture density plot
-
-# TODO:
-# PCA 2D/3D --> convert from px to go
-    # Config tools
-
-# Explained variance --> Plotly PCA exampls
-
-# Make PCA subplot --> 2D/3D PCA, feature rank, and cumvar
+# TODO: gmm mixture density plot
+# TODO: Config tools
 
 
 # TODO: convert to plotly
@@ -23,10 +15,6 @@ def plot_bic_aic(n_components, bic, aic):
     plt.legend(loc='best')
     plt.xlabel('n_components')
     plt.show()
-
-
-# def pca_grid(log_data, key="merged_pca"):
-    
 
 
 def plot_pca_2D(log_data, key="merged_pca"):
@@ -119,31 +107,37 @@ def plot_pca_3D(log_data, key="merged_pca"):
     fig.show()
 
 
-# TODO: convert to go
 def plot_pca_rank(log_data, key="pca_rank"):
+    # get some data
     data = log_data[key]
-    well = log_data["well_name"]  
+    pca_var = log_data["pca_expvar"]*100
+    cols = data.columns.tolist()
+    cols_var = [f"{col} ({var:.1f}%)" for col, var in zip(cols,pca_var)]
 
+    # make title
+    well = log_data["well_name"]
+    top = log_data["interval_top"]
+    bot = log_data["interval_bot"]
+    n = log_data["cluster_n"]
+    title = f"{well}: PCA Feature Rank, {n} Cluster GMM, {top}-{bot}'MD"
+
+    # build the figure
     fig  = go.Figure()
 
-    # hovertemplate
-    trace = go.Heatmap(x=data.columns.values.tolist(),
-                       y=data.index.values.tolist(),
+    trace = go.Heatmap(x=cols_var,
+                       y=data.index.values,
                        z=data,
-                       colorscale="Blues"
+                       colorscale="Blues",
+                       hovertemplate="%{z:.2f}<extra></extra>"
     )
 
-    fig.update_layout(title=f"{well}: PCA Feature Rank")
-    # update y axis --> reverse
-    # update x axus --> PCA amount for each PC.  
+    fig.update_layout(title=title,
+                      yaxis_autorange="reversed",
+
+    )
+
     fig.add_trace(trace)
     fig.show()
-    
-    # fig = px.imshow(data, color_continuous_scale='Blues')
-    # fig.update_layout(title=f"{well}: PCA Feature Rank")
-    # fig.update_xaxes(showticklabels=True)
-    # fig.update_yaxes(showticklabels=True)
-    # fig.show()
 
 
 def plot_curves_prob(log_data, key="merged_curves"):
