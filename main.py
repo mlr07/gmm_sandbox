@@ -12,25 +12,31 @@ if __name__ == "__main__":
     # TODO: put in pipeline
     # FIXME: handle log path with pathlib
     # NOTE: NBBR top at 8650'MD (core) or 8683' (COGCC reg) --> litho and chrono picks
-    # NOTE: PCA returns 8680'MD-8682'MD
+    # NOTE: 2 cluster PCA returns 8680'MD-8682'MD
 
+    # user inputs
     cols = ["GR", "RT90", "NPHI_COMP", "RHOB"]
     data = "./logs/Lazy_D_400222042.las"
+    top = 8500
+    bot = 8800
 
+    # run gmm and pca
     lazy = load_log(data, cols)
-    lazy = interval(lazy, top=8500, bot=8800)
+    lazy = interval(lazy, top=top, bot=bot)
     lazy = scale(lazy)
-    lazy = pca(lazy, verbose=1)
+    lazy = pca(lazy, verbose=0)
     lazy = pca_rank(lazy)
-    lazy = gmm(lazy, n=5)
+    lazy = gmm(lazy, n=2, verbose=0)
     lazy = combine_curves_prob(lazy)
     lazy = combine_pca_prob(lazy)
 
+    # make plots
     plot_pca_2D(lazy)
-    plot_pca_3D(lazy)
-    # plot_pca_rank(lazy)
+    # plot_pca_3D(lazy)
+    plot_pca_rank(lazy)
     plot_curves_prob(lazy)
 
+    # print info
     print(lazy["merged_curves"].info())
 
     for k,v in lazy.items():

@@ -4,16 +4,8 @@ from plotly.subplots import make_subplots
 
 import numpy as np
 
-# TODO: subplot pca and rank
-# TODO: think about gmm mixture density plot
-
-# TODO:
-# PCA 2D/3D --> convert from px to go
-    # Config tools
-
-# Explained variance --> Plotly PCA exampls
-
-# Make PCA subplot --> 2D/3D PCA, feature rank, and cumvar
+# TODO: gmm mixture density plot
+# TODO: Config tools
 
 
 # TODO: convert to plotly
@@ -115,16 +107,36 @@ def plot_pca_3D(log_data, key="merged_pca"):
     fig.show()
 
 
-
-# convert to go
 def plot_pca_rank(log_data, key="pca_rank"):
+    # get some data
     data = log_data[key]
+    pca_var = log_data["pca_expvar"]*100
+    cols = data.columns.tolist()
+    cols_var = [f"{col} ({var:.1f}%)" for col, var in zip(cols,pca_var)]
+
+    # make title
     well = log_data["well_name"]
-    
-    fig = px.imshow(data, color_continuous_scale='Blues')
-    fig.update_layout(title=f"{well}: PCA Feature Rank")
-    fig.update_xaxes(showticklabels=True)
-    fig.update_yaxes(showticklabels=True)
+    top = log_data["interval_top"]
+    bot = log_data["interval_bot"]
+    n = log_data["cluster_n"]
+    title = f"{well}: PCA Feature Rank, {n} Cluster GMM, {top}-{bot}'MD"
+
+    # build the figure
+    fig  = go.Figure()
+
+    trace = go.Heatmap(x=cols_var,
+                       y=data.index.values,
+                       z=data,
+                       colorscale="Blues",
+                       hovertemplate="%{z:.2f}<extra></extra>"
+    )
+
+    fig.update_layout(title=title,
+                      yaxis_autorange="reversed",
+
+    )
+
+    fig.add_trace(trace)
     fig.show()
 
 
@@ -234,22 +246,3 @@ def plot_curves_prob(log_data, key="merged_curves"):
 # TODO: plot distribution of gaussian mixtures with some sort multi-historgram
 def plot_gmm_distro():
     pass
-
-
-    # data = log_data[key]
-    # cluster_col = data.columns.values.tolist()[-1]
-    # data[cluster_col] = data[cluster_col].astype(str)
-    # labels = {"x":"component 1", "y":"component 2", "z":" component 3"}
-    # title = f"{log_data['well_name']}: 3D PCA"
-
-    # fig = px.scatter_3d(data, 
-    #                     x=0, 
-    #                     y=1, 
-    #                     z=2, 
-    #                     color=cluster_col, 
-    #                     labels=labels, 
-    #                     title=title, 
-    #                     size_max=10, 
-    #                     opacity=0.5
-    # )
-    # fig.show()
