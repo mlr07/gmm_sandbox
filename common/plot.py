@@ -32,7 +32,7 @@ def plot_pca_2D(log_data, key="merged_pca"):
     n = log_data["cluster_n"]
     top = log_data["interval_top"]
     bot = log_data["interval_bot"]
-    title = f"{well}: Total 2D PCA Variance = {pca_var_sum:.0f}%, {n} Cluster GMM, {top}-{bot}'MD"
+    title = f"{well}: 2D PCA Variance = {pca_var_sum:.0f}%, {n} Cluster GMM, {top}-{bot}'MD"
 
     # make the fig
     fig = go.Figure()
@@ -55,10 +55,12 @@ def plot_pca_2D(log_data, key="merged_pca"):
     fig.update_layout(title=title,
                       xaxis_title=f"PC_0 variance = {pca_var[0]:.0f}%",
                       yaxis_title=f"PC_1 variance = {pca_var[1]:.0f}%",
-                      legend_title="GMM Cluster"
+                      legend_title="GMM Cluster",
+                      height=700,
+                      width=750
     )
 
-    fig.show()
+    return fig
                     
 
 # TODO: set axis labels and adjust marker colors
@@ -133,11 +135,13 @@ def plot_pca_rank(log_data, key="pca_rank"):
 
     fig.update_layout(title=title,
                       yaxis_autorange="reversed",
+                      height=700,
+                      width=700
 
     )
 
     fig.add_trace(trace)
-    fig.show()
+    return fig
 
 
 def plot_curves_prob(log_data, key="merged_curves"):
@@ -151,7 +155,6 @@ def plot_curves_prob(log_data, key="merged_curves"):
     n = log_data["cluster_n"]
     top = log_data["interval_top"]
     bot = log_data["interval_bot"]
-    interval = abs(top-bot)
 
     # make the fig
     fig = make_subplots(rows=1, 
@@ -236,11 +239,13 @@ def plot_curves_prob(log_data, key="merged_curves"):
                      spikethickness=1,
                      spikecolor="firebrick"
     )
-    fig.update_layout(title=f"{well}: {n} cluster GMM from {top}-{bot}MD' ({interval}' interval)",
+    fig.update_layout(title=f"{well}: {n} Cluster GMM from {top}-{bot}MD'",
                       spikedistance=500,
-                      hoverdistance=5
+                      hoverdistance=5,
+                      height=800,
+                      width=800
     )
-    fig.show()
+    return fig
 
 
 # TODO: plot distribution of gaussian mixtures with some sort multi-historgram

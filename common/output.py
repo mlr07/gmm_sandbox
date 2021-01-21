@@ -44,24 +44,23 @@ def combine_pca_prob(log_data):
     return log_data
 
 
-# TODO: merge probability curve to las
-def add_prob_las():
-    pass
-
-
 # TODO: name clusters based on user input
 def name_clusters():
     pass
 
+# TODO: implement func to export cluster tops
+def output_tops():
+    pass
 
 # TODO: implement func to export curves and clusters
 def output_las():
     pass
 
-
-# TODO: implement func to export cluster tops
-def output_tops():
+# TODO: merge probability curve to las
+def add_prob_las():
     pass
+
+
 
 
     # pca = pd.DataFrame(log_data["pca_curves"])
