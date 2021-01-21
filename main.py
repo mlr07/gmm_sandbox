@@ -5,54 +5,98 @@ from common.model import interval, scale, pca, pca_rank, gmm
 from common.plot import plot_pca_2D, plot_pca_3D, plot_pca_rank, plot_curves_prob
 from common.output import combine_curves_prob, combine_pca_prob
 
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+
+# TODO: put in pipeline
+# FIXME: handle log path with pathlib
+# NOTE: NBBR top at 8650'MD (core) or 8683' (COGCC reg) --> litho and chrono picks
+# NOTE: 2 cluster PCA returns 8680'MD-8682'MD
+
+# check dir
+print(f"main dir: {os.getcwd()}")
+
+# user inputs
+cols = ["GR", "RT90", "NPHI_COMP", "RHOB"]
+data = "./logs/Lazy_D_400222042.las"
+top = 8500
+bot = 8800
+
+# run gmm and pca --> this needs to be cached
+lazy = load_log(data, cols)
+lazy = interval(lazy, top=top, bot=bot)
+lazy = scale(lazy)
+lazy = pca(lazy, verbose=0)
+lazy = pca_rank(lazy)
+lazy = gmm(lazy, n=2, verbose=0)
+lazy = combine_curves_prob(lazy)
+lazy = combine_pca_prob(lazy)
+
+# make plots
+fig_pca_2D = plot_pca_2D(lazy)
+
+# plot_pca_3D(lazy)
+fig_pca_rank = fig_pca_rank = plot_pca_rank(lazy)
+fig_log_plot = plot_curves_prob(lazy)
+
+# print info
+for k,v in lazy.items():
+    if not isinstance(v, str):
+        print(f"{k}: {type(v)}")
+    else:
+        print(f"{k}: {v}")
+
+print("-"*50)
+
+# TODO: work into loop above
+print(f"base df: {lazy['base_curves'].shape}")
+print(f"soft arr: {lazy['soft_clusters'].shape}")
+print(f"hard arr: {lazy['hard_clusters'].shape}")
+print(f"pca arr: {lazy['pca_curves'].shape}")
+print(f"pca expvar: {lazy['pca_curves'].shape}")
+print(f"pca rank: {lazy['pca_rank'].shape}")
+print(f"merged df: {lazy['merged_curves'].shape}")
+print(f"merged pca: {lazy['merged_pca'].shape}")
+
+# dash recommended style sheet
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
+# construct app
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+
+# style to align center and justify figures
+style=style = {"width": "100%", 
+               "display": "flex", 
+               "align-items": "center", 
+               "justify-content": 
+               "center"
+}
+
+app.layout = html.Div([
+    html.Div([
+        dcc.Graph(
+            id="graph1",
+            figure=fig_log_plot
+        ),  
+    ], className="row", style=style),
+
+    html.Div([
+        dcc.Graph(
+            id="graph2",
+            figure=fig_pca_2D
+        )
+    ], className="row", style=style),
+
+    html.Div([
+        dcc.Graph(
+            id="graph3",
+            figure=fig_pca_rank
+        )
+    ], className="row", style=style)
+])
 
 if __name__ == "__main__":
-    print(f"main dir: {os.getcwd()}")
+    app.run_server(debug=True)
 
-    # TODO: put in pipeline
-    # FIXME: handle log path with pathlib
-    # NOTE: NBBR top at 8650'MD (core) or 8683' (COGCC reg) --> litho and chrono picks
-    # NOTE: 2 cluster PCA returns 8680'MD-8682'MD
 
-    # user inputs
-    cols = ["GR", "RT90", "NPHI_COMP", "RHOB"]
-    data = "./logs/Lazy_D_400222042.las"
-    top = 8500
-    bot = 8800
-
-    # run gmm and pca
-    lazy = load_log(data, cols)
-    lazy = interval(lazy, top=top, bot=bot)
-    lazy = scale(lazy)
-    lazy = pca(lazy, verbose=0)
-    lazy = pca_rank(lazy)
-    lazy = gmm(lazy, n=2, verbose=0)
-    lazy = combine_curves_prob(lazy)
-    lazy = combine_pca_prob(lazy)
-
-    # make plots
-    plot_pca_2D(lazy)
-    # plot_pca_3D(lazy)
-    plot_pca_rank(lazy)
-    plot_curves_prob(lazy)
-
-    # print info
-    print(lazy["merged_curves"].info())
-
-    for k,v in lazy.items():
-        if not isinstance(v, str):
-            print(f"{k}: {type(v)}")
-        else:
-            print(f"{k}: {v}")
-
-    print("-"*50)
-
-    # TODO: work into loop above
-    print(f"base df: {lazy['base_curves'].shape}")
-    print(f"soft arr: {lazy['soft_clusters'].shape}")
-    print(f"hard arr: {lazy['hard_clusters'].shape}")
-    print(f"pca arr: {lazy['pca_curves'].shape}")
-    print(f"pca expvar: {lazy['pca_curves'].shape}")
-    print(f"pca rank: {lazy['pca_rank'].shape}")
-    print(f"merged df: {lazy['merged_curves'].shape}")
-    print(f"merged pca: {lazy['merged_pca'].shape}")
