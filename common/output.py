@@ -56,11 +56,9 @@ def output_tops():
 def output_las():
     pass
 
-# TODO: merge probability curve to las
-def add_prob_las():
+# TODO: merge probability curve to las --> add hard cluster array to las object
+def add_prob_las(log_data):
     pass
-
-
 
 
     # pca = pd.DataFrame(log_data["pca_curves"])

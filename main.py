@@ -5,10 +5,6 @@ from common.model import interval, scale, pca, pca_rank, gmm
 from common.plot import plot_pca_2D, plot_pca_3D, plot_pca_rank, plot_curves_prob
 from common.output import combine_curves_prob, combine_pca_prob
 
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
-
 # TODO: put in pipeline
 # FIXME: handle log path with pathlib
 # NOTE: NBBR top at 8650'MD (core) or 8683' (COGCC reg) --> litho and chrono picks
@@ -59,42 +55,6 @@ print(f"pca rank: {lazy['pca_rank'].shape}")
 print(f"merged df: {lazy['merged_curves'].shape}")
 print(f"merged pca: {lazy['merged_pca'].shape}")
 
-# dash recommended style sheet
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
-# construct app
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-
-# style to align center and justify figures
-style=style = {"width": "100%", 
-               "display": "flex", 
-               "align-items": "center", 
-               "justify-content": 
-               "center"
-}
-
-app.layout = html.Div([
-    html.Div([
-        dcc.Graph(
-            id="graph1",
-            figure=fig_log_plot
-        ),  
-    ], className="row", style=style),
-
-    html.Div([
-        dcc.Graph(
-            id="graph2",
-            figure=fig_pca_2D
-        )
-    ], className="row", style=style),
-
-    html.Div([
-        dcc.Graph(
-            id="graph3",
-            figure=fig_pca_rank
-        )
-    ], className="row", style=style)
-])
 
 if __name__ == "__main__":
     app.run_server(debug=True)

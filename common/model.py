@@ -16,10 +16,13 @@ def scale(log_dict, key="base_curves"):
     return log_dict
 
 
-def interval(log_dict, top, bot, key="base_curves"):
-    log_dict[key] = log_dict[key].loc[top:bot]
-    log_dict["interval_top"] = top
-    log_dict["interval_bot"] = bot
+def interval(log_dict, top=None, bot=None, key="base_curves"):
+    
+    if top and bot: 
+        log_dict[key] = log_dict[key].loc[top:bot]
+        log_dict["interval_top"] = top
+        log_dict["interval_bot"] = bot
+        
     return log_dict
 
 
