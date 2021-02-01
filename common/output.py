@@ -1,5 +1,9 @@
 import pandas as pd
 import numpy as np
+import lasio as ls
+import os
+
+from common.load import cd
 
 # TODO: determine dtype and shape for probability
 # TODO: confirm that cluster array column is correct
@@ -17,7 +21,7 @@ def combine_curves_prob(log_data):
     
     log_data["merged_curves"] = curves.join([soft_df, hard_df])
 
-    print("LOGS AND CLUSTERS MERGED")
+    print("LOGS AND  HARD/SOFT CLUSTERS MERGED")
 
     return log_data 
 
@@ -39,9 +43,77 @@ def combine_pca_prob(log_data):
     merged_df.columns = pca_cols + other_cols
 
     log_data["merged_pca"] = merged_df
-    print("PCA AND CLUSTERS MERGED")
+    print("PCA AND HARD CLUSTERS MERGED")
 
     return log_data
+
+
+def export_las(log_data:dict, prefix:str):
+    # get data
+    hard_clusters = log_data["hard_clusters"].astype(int)
+    las = log_data["las"]
+    name = log_data["well_name"]
+    
+    # get start and stop MDs from user interval and las
+    interval_start = float(log_data["interval_top"])
+    interval_stop = float(log_data["interval_bot"])
+    las_start = las.index[0]
+    las_stop = las.index[-1]
+
+    # extract idx from interval and las stop, las start idx is 0
+    interval_start_idx = np.where(las.index == interval_start)[0][0]
+    interval_stop_idx = np.where(las.index == interval_stop)[0][0]
+    las_stop_idx = np.where(las.index == las_stop)[0][0]
+
+
+    # TODO: figure out how to implement smooth concat of clusters and nan arrays
+
+    # identify location of cluster interval relative to las start and stop
+    if interval_start > las_start and interval_stop < las_stop:
+        print("interval in middle case --> normal")
+        print(f"{las_start} < {interval_start} < {interval_stop} < {las_stop}")
+
+        nan_upper = np.full((interval_start_idx), np.nan)
+        nan_lower = np.full((las_stop_idx - interval_stop_idx), np.nan)
+        merged = np.concatenate((nan_upper, hard_clusters, nan_lower))
+    
+    elif interval_start == las_start and interval_stop < las_stop:
+        print("interval start equal to las start --> no upper_nan")
+        print(f"{las_start} = {interval_start} < {interval_stop} < {las_stop}")
+
+        nan_lower = np.full((las_stop_idx - interval_stop_idx), np.nan)
+        merged = np.concatenate((hard_clusters, nan_lower))
+
+    elif interval_start > las_start and interval_stop == las_stop:
+        print("interval stop = las stop --> no lower_nan")
+        print(f"{las_start} < {interval_start} < {interval_stop} = {las_stop}")
+        
+        nan_upper = np.full((interval_start_idx), np.nan)
+        merged = np.concatenate((nan_upper, hard_clusters))
+
+    elif interval_start == las_start and interval_stop == las_stop:
+        print("interval start and stop == las start and stop --> no nan, full log")
+        print(f"{las_start} = {interval_start} < {interval_stop} = {las_stop}")
+        
+        merged = hard_clusters
+
+    else:
+        print("unknown case --> error")
+        print(f"else case")
+        print(f"{interval_start}, {interval_stop}")
+        print(f"{las_start}, {las_stop}")
+
+    print(f"shape of merged: {merged.shape}")
+    print(f"shape of LAS: {las.index.shape}")
+
+    try:
+        with cd(os.path.join(os.getcwd(),"logs")):
+            print(os.getcwd())
+            las_copy = las
+            las_copy.add_curve("ZONE_CLSTR", merged, unit="float", descr="zone clusters")
+            las_copy.write(f"{prefix}_{name}.las")
+    except Exception as e:
+        print(e)
 
 
 # TODO: name clusters based on user input
@@ -60,14 +132,3 @@ def output_las():
 def add_prob_las(log_data):
     pass
 
-
-    # pca = pd.DataFrame(log_data["pca_curves"])
-    # pca.columns = [f"PCA_{i}" for i in df_pca.columns.values.tolist()]
-    # # get hard clusters
-    # hard = pd.DataFrame(log_data["hard_clusters"].reshape((-1,1)), columns="hard_clusters")
-    # # get depth 
-    # depth = pd.DataFrame(log_data["base_curves"].index.values.reshape((-1,1)), columns="depth")
-    # # merge dataframes on vertical axis
-    # merged_df = pd.DataFrame() 
-    # log_data["merged_pca"] = merged_df
-    # print("PCA AND CLUSTERS MERGED")

@@ -28,25 +28,24 @@ def glob_data(data_dir, log_regex="/*.las"):
         print("dir not found")
 
 
-def load_log(log_path:str, cols:list):
-    log_las = ls.read(log_path, ignore_header_errors=True,  autodetect_encoding=True)
-    log_output = dict()
-    log_output["las"] = log_las
-    log_output["well_name"] = log_las.well["WELL"]["value"]
+# TODO: streamlit, need a place to examine curves and select depths
+# NOTE: this will probably be the place the encoding error will pop up
+def inspect_log():
+    pass
+
+
+def load_log(log_path:str, cols:list, top:int, bot:int):
+    log_data = dict()
+    log_data["interval_top"] = top
+    log_data["interval_bot"] = bot
 
     try:
-        log_output["base_curves"] = curves(log_las.df(), cols).dropna()
-        # log_output["base_curves"]["DEPT"] = log_output["base_curves"].index.values
-        print("LOG LOADED")
+        log_data["las"] = ls.read(log_path, ignore_header_errors=True, autodetect_encoding=True)
+        log_data["well_name"] = log_data["las"].well["WELL"]["value"]
+        # HACK: nan is replaced with 0.0 to keep shapes consistent between las and df
+        log_data["base_curves"] = log_data["las"].df().loc[top:bot][cols].fillna(0.0)
 
-    except (KeyError, Exception) as e:
-        print(f"{log_path}: {e}")
-        log_output["base_curves"] = None
+        return log_data
 
-    return log_output
-
-
-# TODO: in app the user selects curves from a list
-def curves(log_df, cols:list):
-    # TODO: logic to check for presence of curves
-    return log_df[cols]
+    except Exception as e:
+        print(e)

@@ -6,24 +6,10 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.mixture import GaussianMixture
 
-# TODO: consider passing data dict around differently
-# TODO: investigate min number of curves to cluster with
-# TODO: investigate curve variance
 
-
-def scale(log_dict, key="base_curves"):
-    log_dict["scaled_curves"] = StandardScaler().fit_transform(log_dict[key])
-    return log_dict
-
-
-def interval(log_dict, top=None, bot=None, key="base_curves"):
-    
-    if top and bot: 
-        log_dict[key] = log_dict[key].loc[top:bot]
-        log_dict["interval_top"] = top
-        log_dict["interval_bot"] = bot
-        
-    return log_dict
+def scale(log_data, key="base_curves"):
+    log_data["scaled_curves"] = StandardScaler().fit_transform(log_data[key])
+    return log_data
 
 
 def pca(log_data, key="scaled_curves", verbose=0):
@@ -73,13 +59,13 @@ def pca_rank(log_data):
     return log_data
 
 
-def gmm(log_dict, n=5, key="scaled_curves", verbose=0):
+def gmm(log_data, n=5, key="scaled_curves", verbose=0):
     gmm = GaussianMixture(n_components=n, covariance_type="full", n_init=10, random_state=42)
-    gmm.fit(log_dict[key])
+    gmm.fit(log_data[key])
 
-    log_dict["soft_clusters"] = gmm.predict_proba(log_dict[key])
-    log_dict["hard_clusters"] = gmm.predict(log_dict[key])
-    log_dict["cluster_n"] = n
+    log_data["soft_clusters"] = gmm.predict_proba(log_data[key])
+    log_data["hard_clusters"] = gmm.predict(log_data[key])
+    log_data["cluster_n"] = n
 
     if verbose == 0:
         print("GMM COMPLETE")
@@ -93,36 +79,5 @@ def gmm(log_dict, n=5, key="scaled_curves", verbose=0):
         print(f"iterations: {gmm.n_iter_}")
         print(f"converged: {gmm.converged_}")
 
-    return log_dict
+    return log_data
 
-
-def gmm_range(scaled_curves, n=25):
-    
-    clusters = np.arange(1, n+1)
-    bic = np.zeros(clusters.shape)
-    aic = np.zeros(clusters.shape)
-    models = []
-
-    for i,j in enumerate(clusters):
-        gmm = GaussianMixture(n_components=j, covariance_type="full", random_state=42)
-        gmm.fit(scaled_curves)
-        bic[i] = gmm.bic(scaled_curves)
-        aic[i] = gmm.aic(scaled_curves)
-        models.append(gmm)
-    
-    print(n)
-    print(bic)
-    print(aic)
-    print(models)
-
-    return clusters, bic, aic, models
-
-
-# TODO: FLow 1: trim --> scale --> gmm --> plot and save
-def pipeline_1():
-    pass
-
-
-# TODO: Flow 2: trim --> scale --> pca --> gmm --> merge --> plot and save
-def pipeline_2():
-    pass
