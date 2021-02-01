@@ -10,7 +10,7 @@ print(os.getcwd())
 
 # %%
 from common.load import load_log
-from common.model import interval, scale, pca, pca_rank, gmm
+from common.model import scale, pca, pca_rank, gmm
 # from common.plot import plot_pca_2D, plot_pca_3D, plot_pca_rank, plot_curves_prob
 from common.output import combine_curves_prob, combine_pca_prob, export_las
 
@@ -41,33 +41,30 @@ print(las.index.shape)
 import numpy as np
 import lasio
 
-# TODO: add paramsfor interval
-# get idx of top and bottom of interval
+#  grab original las from dict of data
+las = lazy["las"]
+print(f"orginal las shape: {las.data.shape}")
+
+# find idx for desired MDs
 idx_top = np.where(las.index == 8000)[0][0]
-idx_bot = np.where(las.index == 9000)[0][0]
+idx_bot = np.where(las.index == 9001)[0][0]
+print(f"8000MD idx: {idx_top}, 9000MD idx: {idx_bot}")# print(las.curves)
+# print(las.index[0])
+# print(las.index[-1])
+# print(las.data.shape)
 
-# get idx of las stop
-stop = np.where(las.index == las.index[-1])[0][0]
+# slice data over desired MDs
+las_slice = las.data[idx_top:idx_bot]
 
-# make nan arrays above and below interval
-top_nan = np.full((idx_top), np.nan)
-bot_nan = np.full((stop-idx_bot), np.nan)
+# assign sliced data to original las
+las.data = las_slice
+print(f"las shape: {las.data.shape}")
+print(f"las depth index: {las.index.shape}")
 
-# merge nan above, interval, nan below
-merged = np.concatenate((top_nan, hard_clusters, bot_nan))
+# convert to dataframe
+try:
+    df = las.df()
+except Exception as e:
+    print(f"conversion to df failed: {e}")
 
 # %%
-# NOTE: this will not be needed for streamlit. anchortag thing.
-from common.load import cd
-
-try:
-    with cd(os.path.join(os.getcwd(),"logs")):
-        print(os.getcwd())
-        las_copy = las
-        las_copy.add_curve("ZONE_CLSTR", merged, unit="float", descr="zone clusters")
-        las_copy.write(f"MOD2_{name}.las")
-except Exception as e:
-    print(e)
-
-print(os.getcwd())
-

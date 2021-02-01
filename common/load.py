@@ -5,9 +5,6 @@ from contextlib import contextmanager
 import lasio as ls
 import pandas as pd
 
-# TODO: add type hints
-# TODO: try error logs piped to file
-
 
 @contextmanager
 def cd(new_dir):
@@ -19,16 +16,7 @@ def cd(new_dir):
         os.chdir(prev_dir)
 
 
-# TODO: proper glob and path management, will fail if outside of root dir
-def glob_data(data_dir, log_regex="/*.las"):
-    try:
-        with cd(data_dir):
-            return glob.glob(os.getcwd()+log_regex)
-    except:
-        print("dir not found")
-
-
-# TODO: streamlit, need a place to examine curves and select depths
+# TODO: dash, need a place to examine curves and select depths
 # NOTE: this will probably be the place the encoding error will pop up
 def inspect_log():
     pass
