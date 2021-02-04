@@ -4,9 +4,7 @@ from plotly.subplots import make_subplots
 
 import numpy as np
 
-# TODO: gmm mixture density plot
 # TODO: Config tools
-
 
 # TODO: convert to plotly
 def plot_bic_aic(n_components, bic, aic):

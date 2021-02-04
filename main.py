@@ -27,30 +27,31 @@ test_depths = [[2295, 9676, "MOD_FULL"],
                [8000, 9676, "MOD_NO_LOWER"]
 ]
 
-for depth in test_depths:
+def main(data, cols, test_depths):
+    for depth in test_depths:
 
-    top = depth[0]
-    bot = depth[1]
-    prefix = depth[2]
+        top = depth[0]
+        bot = depth[1]
+        prefix = depth[2]
 
-    # run gmm and pca --> this needs to be cached
-    lazy = load_log(data, cols, top=top, bot=bot)
-    lazy = scale(lazy)
-    lazy = pca(lazy, verbose=0)
-    lazy = pca_rank(lazy)
-    lazy = gmm(lazy, n=2, verbose=0)
-    lazy = combine_curves_prob(lazy)
-    lazy = combine_pca_prob(lazy)
+        # run gmm and pca --> this needs to be cached
+        lazy = load_log(data, cols, top=top, bot=bot)
+        lazy = scale(lazy)
+        lazy = pca(lazy)
+        lazy = pca_rank(lazy)
+        lazy = gmm(lazy, n=2)
+        lazy = combine_curves_prob(lazy)
+        lazy = combine_pca_prob(lazy)
 
-    export_las(lazy, prefix=prefix)
+        export_las(lazy, prefix=prefix)
 
-# make plots
-# fig_pca_2D = plot_pca_2D(lazy)
-# plot_pca_3D(lazy)
-# fig_pca_rank = fig_pca_rank = plot_pca_rank(lazy)
-# fig_log_plot = plot_curves_prob(lazy)
-
-verbose_info(lazy)
+    # make plots
+    # fig_pca_2D = plot_pca_2D(lazy)
+    # plot_pca_3D(lazy)
+    # fig_pca_rank = fig_pca_rank = plot_pca_rank(lazy)
+    # fig_log_plot = plot_curves_prob(lazy)
 
 
+if __name__ == "__main__":
+    main(data, cols, test_depths)
 
