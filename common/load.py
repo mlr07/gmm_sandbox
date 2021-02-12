@@ -1,4 +1,3 @@
-import glob
 import os
 from contextlib import contextmanager
 
@@ -6,12 +5,13 @@ import lasio as ls
 import pandas as pd
 
 
+# NOTE: this is used by log export in output.py
 @contextmanager
 def cd(new_dir):
     prev_dir = os.getcwd()
     os.chdir(os.path.expanduser(new_dir))
     try:
-        yield 
+        yield
     finally:
         os.chdir(prev_dir)
 
@@ -22,6 +22,7 @@ def inspect_log():
     pass
 
 
+# NOTE: make dict and load in log
 def load_log(log_path:str, cols:list, top:int, bot:int):
     log_data = dict()
     log_data["interval_top"] = top

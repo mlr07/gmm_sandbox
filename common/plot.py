@@ -6,7 +6,8 @@ import numpy as np
 
 # TODO: Config tools
 
-# TODO: convert to plotly
+
+# TODO: convert to plotly or depreciate
 def plot_bic_aic(n_components, bic, aic):
     plt.plot(n_components, bic, label="BIC")
     plt.plot(n_components, aic, label="AIC")
@@ -15,16 +16,18 @@ def plot_bic_aic(n_components, bic, aic):
     plt.show()
 
 
+# NOTE: plot the 2D pca
+# FIXME: incremenet PCA axis titles
 def plot_pca_2D(log_data, key="merged_pca"):
     # prepare data
     data = log_data[key]
     unique_clusters = np.sort(data["hard_cluster"].unique().astype(int))
     pca_var = log_data["pca_expvar"][0:2]*100
     pca_var_sum = pca_var.sum()
-    
+
     # get some colors
-    g10 = px.colors.qualitative.G10       
-    
+    g10 = px.colors.qualitative.G10
+
     # build a title
     well = log_data["well_name"]
     n = log_data["cluster_n"]
@@ -61,7 +64,7 @@ def plot_pca_2D(log_data, key="merged_pca"):
     return fig
                     
 
-# TODO: set axis labels and adjust marker colors
+# NOTE: not used, might depreciate.
 def plot_pca_3D(log_data, key="merged_pca"):
     # prepare data
     data = log_data[key]
@@ -107,6 +110,7 @@ def plot_pca_3D(log_data, key="merged_pca"):
     fig.show()
 
 
+# NOTE: plot log feature importance heatmap
 def plot_pca_rank(log_data, key="pca_rank"):
     # get some data
     data = log_data[key]
@@ -142,6 +146,7 @@ def plot_pca_rank(log_data, key="pca_rank"):
     return fig
 
 
+# NOTE: log plot with or without cluster prob curves
 def plot_curves_prob(log_data, key="merged_curves"):
     # prepare data
     curves = log_data[key]
@@ -183,7 +188,7 @@ def plot_curves_prob(log_data, key="merged_curves"):
                              row=1, 
                              col=i+1
             )
-        
+
         elif col == "soft_clusters":
             trace = go.Heatmap(y=depth,
                                z=curves[col],
