@@ -1,3 +1,4 @@
+# NOTE: print out type and shape info on all data in  dict
 def verbose_info(log_data:dict):
     for k,v in log_data.items():
         if not isinstance(v, str):

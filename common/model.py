@@ -1,18 +1,19 @@
 import pandas as pd
 import numpy as np
 
-from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.mixture import GaussianMixture
 
 
+# NOTE: quick scaler
 def scale(log_data, key="base_curves"):
     log_data["scaled_curves"] = StandardScaler().fit_transform(log_data[key])
-    
+
     return log_data
 
 
+# NOTE: run PCA
 def pca(log_data, key="scaled_curves"):
     pca = PCA(random_state=42)
     log_data["pca_curves"] = pca.fit_transform(log_data[key])
@@ -21,7 +22,7 @@ def pca(log_data, key="scaled_curves"):
     return log_data
 
 
-# TODO: review routine with dataframes, too many variables
+# NOTE: compute feature rank from PCA. see notebook 02 for run down on method.
 def pca_rank(log_data):
     X = log_data["scaled_curves"]
     X_pca = log_data["pca_curves"]
@@ -49,6 +50,7 @@ def pca_rank(log_data):
     return log_data
 
 
+# NOTE: run gmm
 def gmm(log_data, n=5, key="scaled_curves"):
     gmm = GaussianMixture(n_components=n, covariance_type="full", n_init=10, random_state=42)
     gmm.fit(log_data[key])

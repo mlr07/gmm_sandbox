@@ -5,9 +5,8 @@ import os
 
 from common.load import cd
 
-# TODO: revert to col per cluster and test
 
-
+# NOTE: merge log curves with soft and hard clusters for log plot
 def combine_curves_prob(log_data):
     # get data
     curves = log_data["base_curves"]
@@ -26,6 +25,7 @@ def combine_curves_prob(log_data):
     return log_data
 
 
+# NOTE: merge pca and hard clusters for the 2D pca plot
 def combine_pca_prob(log_data):
     # get data
     pca = log_data["pca_curves"]
@@ -47,6 +47,7 @@ def combine_pca_prob(log_data):
     return log_data
 
 
+# NOTE: first attempt function to export logs with hard clusters appeneded
 def export_las(log_data:dict, prefix:str):
     # get data
     hard_clusters = log_data["hard_clusters"].astype(int)
@@ -85,7 +86,8 @@ def export_las(log_data:dict, prefix:str):
         with cd(os.path.join(os.getcwd(),"logs")):
             las_copy = las
             las_copy.add_curve("ZONE_CLSTR", merged, unit="float", descr="zone clusters")
-            las_copy.write(f"{prefix}_{name}.las")
+            name = f'{prefix}_{name}.las'
+            las_copy.write(name)
     except Exception as e:
         print(e)
 
