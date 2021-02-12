@@ -23,7 +23,7 @@ def combine_curves_prob(log_data):
     # merge probs to curves
     log_data["merged_curves"] = curves.join([soft_df, hard_df])
 
-    return log_data 
+    return log_data
 
 
 def combine_pca_prob(log_data):
